@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rustic-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rustic-app
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: rustic_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rustic-app -d rustic_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Within Compose, services talk to each other by service name, not localhost.
+      DATABASE_URL: postgresql://rustic-app:123456@postgres:5432/rustic_db
+      PORT: 3006
+    ports:
+      - "3006:3006"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
