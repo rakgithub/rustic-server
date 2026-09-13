@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -6,6 +6,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
@@ -13,6 +14,10 @@ import {
   createProductSchema,
   type CreateProductDto,
 } from './dto/create-product.dto.js';
+import {
+  listProductsQuerySchema,
+  type ListProductsQueryDto,
+} from './dto/list-products-query.dto.js';
 import { ProductsService } from './products.service.js';
 
 const productResponseSchema = {
@@ -62,12 +67,38 @@ export class ProductsController {
 
   @Get()
   @ApiOperation({ summary: 'Get the product list' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'One-based page number. Defaults to 1.',
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+    example: 20,
+    description: 'Products per page (1–100). Defaults to 20.',
+  })
   @ApiOkResponse({
     description: 'Products ordered from newest to oldest.',
-    schema: { type: 'array', items: productResponseSchema },
+    schema: {
+      type: 'object',
+      required: ['items', 'page', 'pageSize', 'hasNextPage'],
+      properties: {
+        items: { type: 'array', items: productResponseSchema },
+        page: { type: 'integer', example: 1 },
+        pageSize: { type: 'integer', example: 20 },
+        hasNextPage: { type: 'boolean', example: false },
+      },
+    },
   })
-  findAll() {
-    return this.productsService.findAll();
+  findAll(
+    @Query(new ZodValidationPipe(listProductsQuerySchema))
+    query: ListProductsQueryDto,
+  ) {
+    return this.productsService.findAll(query);
   }
 
   @Get(':id')

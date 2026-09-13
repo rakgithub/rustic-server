@@ -31,5 +31,20 @@ services:
       postgres:
         condition: service_healthy
 
+  # Run on demand with: docker compose run --rm migrate
+  # It uses the same internal PostgreSQL hostname as the API service.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    profiles: ["tools"]
+    environment:
+      DATABASE_URL: postgresql://rustic-app:123456@postgres:5432/rustic_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "db:migrate"]
+
 volumes:
   postgres_data:
