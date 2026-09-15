@@ -1,18 +1,17 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: rustic-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: rustic-app
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: rustic_db
+      POSTGRES_USER: ${POSTGRES_USER:-rustic-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment}
+      POSTGRES_DB: ${POSTGRES_DB:-rustic_db}
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rustic-app -d rustic_db"]
+      test: ['CMD-SHELL', 'pg_isready -U rustic-app -d rustic_db']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,29 +21,29 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      # This Compose file is for local development. The Docker image defaults to
+      # production, which would require production-only CORS and admin-key settings.
+      NODE_ENV: development
       # Within Compose, services talk to each other by service name, not localhost.
-      DATABASE_URL: postgresql://rustic-app:123456@postgres:5432/rustic_db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rustic-app}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-rustic_db}
       PORT: 3006
     ports:
-      - "3006:3006"
+      - '3006:3006'
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
-  # Run on demand with: docker compose run --rm migrate
-  # It uses the same internal PostgreSQL hostname as the API service.
   migrate:
     build:
       context: .
       dockerfile: Dockerfile
       target: build
-    profiles: ["tools"]
     environment:
-      DATABASE_URL: postgresql://rustic-app:123456@postgres:5432/rustic_db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rustic-app}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-rustic_db}
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["pnpm", "db:migrate"]
+    command: ['pnpm', 'db:migrate']
 
 volumes:
   postgres_data:

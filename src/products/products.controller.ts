@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -10,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
+import { AdminApiKeyGuard } from '../common/guards/admin-api-key.guard.js';
 import {
   createProductSchema,
   type CreateProductDto,
@@ -27,6 +37,10 @@ const productResponseSchema = {
     title: { type: 'string' },
     description: { type: 'string' },
     priceMinor: { type: 'integer', example: 1999 },
+    brand: { type: 'string' },
+    colour: { type: 'string', example: '#8B5E3C' },
+    currency: { type: 'string', example: 'EUR' },
+    category: { type: 'string' },
     createdAt: { type: 'string', format: 'date-time' },
   },
 };
@@ -37,13 +51,26 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
+  @UseGuards(AdminApiKeyGuard)
   @ApiOperation({ summary: 'Add a product' })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['title', 'description', 'priceMinor'],
+      required: [
+        'title',
+        'description',
+        'priceMinor',
+        'brand',
+        'colour',
+        'currency',
+        'category',
+      ],
       properties: {
-        title: { type: 'string', example: 'Rustic ceramic mug', maxLength: 200 },
+        title: {
+          type: 'string',
+          example: 'Rustic ceramic mug',
+          maxLength: 200,
+        },
         description: {
           type: 'string',
           example: 'Hand-finished stoneware mug for everyday use.',
@@ -55,10 +82,21 @@ export class ProductsController {
           description: 'Price in the smallest currency unit, such as cents.',
           minimum: 0,
         },
+        brand: { type: 'string', maxLength: 50 },
+        colour: {
+          type: 'string',
+          pattern: '^#[0-9A-Fa-f]{6}$',
+          example: '#8B5E3C',
+        },
+        currency: { type: 'string', pattern: '^[A-Za-z]{3}$', example: 'EUR' },
+        category: { type: 'string', maxLength: 20 },
       },
     },
   })
-  @ApiCreatedResponse({ description: 'Product created.', schema: productResponseSchema })
+  @ApiCreatedResponse({
+    description: 'Product created.',
+    schema: productResponseSchema,
+  })
   create(
     @Body(new ZodValidationPipe(createProductSchema)) body: CreateProductDto,
   ) {

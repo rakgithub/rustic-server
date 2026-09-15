@@ -1,18 +1,21 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
+import { validateEnvironment } from './config/environment.js';
 import { DatabaseModule } from './database/database.module.js';
+import { HealthModule } from './health/health.module.js';
 import { ProductsModule } from './products/products.module.js';
+import { CheckoutModule } from './checkout/checkout.module.js';
 
 @Module({
   imports: [
-    // Makes values from .env, such as DATABASE_URL, available throughout Nest.
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     DatabaseModule,
+    HealthModule,
     ProductsModule,
+    CheckoutModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [{ provide: APP_GUARD, useClass: RateLimitGuard }],
 })
 export class AppModule {}

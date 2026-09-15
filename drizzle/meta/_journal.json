@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1788952699692,
-      "tag": "0000_happy_ultimo",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1789039819388,
-      "tag": "0001_clumsy_baron_strucker",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1789126524751,
-      "tag": "0002_lush_legion",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1789137932033,
-      "tag": "0003_tearful_maria_hill",
+      "when": 1789498116002,
+      "tag": "0000_initial_schema",
       "breakpoints": true
     }
   ]

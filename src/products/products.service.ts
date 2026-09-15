@@ -18,7 +18,7 @@ export class ProductsService {
       this.db
         .select()
         .from(products)
-        .orderBy(desc(products.createdAt))
+        .orderBy(desc(products.createdAt), desc(products.id))
         .limit(pageSize)
         .offset(offset),
     ]);
