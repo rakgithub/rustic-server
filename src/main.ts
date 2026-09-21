@@ -3,10 +3,12 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 import { AppModule } from './app.module.js';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter.js';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableShutdownHooks();
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useBodyParser('json', { limit: '100kb' });
   app.use((request: Request, response: Response, next: NextFunction) => {
     const requestId = request.header('x-request-id') ?? crypto.randomUUID();
