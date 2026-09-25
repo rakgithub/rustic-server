@@ -40,7 +40,12 @@ async function bootstrap() {
 
   app.enableCors({
     origin: allowedOrigins,
-    allowedHeaders: ['Content-Type', 'Idempotency-Key', 'x-admin-api-key'],
+    allowedHeaders: [
+      'Content-Type',
+      'Idempotency-Key',
+      'x-admin-api-key',
+      'x-user-id',
+    ],
   });
 
   const swaggerConfig = new DocumentBuilder()

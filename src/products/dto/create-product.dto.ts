@@ -8,7 +8,7 @@ export const createProductSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(200),
   description: z.string().trim().min(1, 'Description is required').max(5_000),
   priceMinor: z.number().int().min(0).max(100_000_000),
-  brand: z.string().trim().min(1, 'Brand is required').max(50),
+  brandId: z.uuid('Brand ID must be a valid UUID'),
   colour: z
     .string()
     .trim()
@@ -18,7 +18,7 @@ export const createProductSchema = z.object({
     .trim()
     .regex(/^[A-Za-z]{3}$/, 'Currency must be a three-letter ISO code')
     .transform((value) => value.toUpperCase()),
-  category: z.string().trim().min(1, 'Category is required').max(20),
+  categoryId: z.uuid('Category ID must be a valid UUID'),
 });
 
 export type CreateProductDto = z.infer<typeof createProductSchema>;

@@ -19,10 +19,10 @@ export const productResponseSchema = {
     title: { type: 'string' },
     description: { type: 'string' },
     priceMinor: { type: 'integer', example: 1999 },
-    brand: { type: 'string' },
+    brandId: { type: 'string', format: 'uuid' },
     colour: { type: 'string', example: '#8B5E3C' },
     currency: { type: 'string', example: 'EUR' },
-    category: { type: 'string' },
+    categoryId: { type: 'string', format: 'uuid' },
     createdAt: { type: 'string', format: 'date-time' },
   },
 };
@@ -34,10 +34,10 @@ export const createProductApiBody: ApiBodyOptions = {
       'title',
       'description',
       'priceMinor',
-      'brand',
+      'brandId',
       'colour',
       'currency',
-      'category',
+      'categoryId',
     ],
     properties: {
       title: {
@@ -56,14 +56,14 @@ export const createProductApiBody: ApiBodyOptions = {
         description: 'Price in the smallest currency unit, such as cents.',
         minimum: 0,
       },
-      brand: { type: 'string', maxLength: 50 },
+      brandId: { type: 'string', format: 'uuid' },
       colour: {
         type: 'string',
         pattern: '^#[0-9A-Fa-f]{6}$',
         example: '#8B5E3C',
       },
       currency: { type: 'string', pattern: '^[A-Za-z]{3}$', example: 'EUR' },
-      category: { type: 'string', maxLength: 20 },
+      categoryId: { type: 'string', format: 'uuid' },
     },
   },
 };

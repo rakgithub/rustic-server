@@ -5,10 +5,10 @@ describe('createProductSchema', () => {
     title: 'Rustic ceramic mug',
     description: 'Hand-finished stoneware mug.',
     priceMinor: 2499,
-    brand: 'Rustic',
+    brandId: '00000000-0000-4000-8000-000000000001',
     colour: '#8b5e3c',
     currency: 'eur',
-    category: 'Home',
+    categoryId: '00000000-0000-4000-8000-000000000002',
   };
 
   it('normalizes ISO currency while preserving a validated product', () => {

@@ -19,6 +19,30 @@ export const checkoutStatus = pgEnum('checkout_status', [
   'cancelled',
 ]);
 
+export const brands = pgTable(
+  'brands',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    name: text().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [uniqueIndex('brands_name_idx').on(table.name)],
+);
+
+export const categories = pgTable(
+  'categories',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    name: text().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [uniqueIndex('categories_name_idx').on(table.name)],
+);
+
 export const products = pgTable(
   'products',
   {
@@ -29,8 +53,12 @@ export const products = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    category: text().notNull(),
-    brand: text().notNull(),
+    categoryId: uuid('category_id')
+      .notNull()
+      .references(() => categories.id, { onDelete: 'restrict' }),
+    brandId: uuid('brand_id')
+      .notNull()
+      .references(() => brands.id, { onDelete: 'restrict' }),
     colour: text().notNull(),
     currency: text().notNull(),
   },
@@ -38,6 +66,8 @@ export const products = pgTable(
     check('products_price_minor_non_negative', sql`${table.priceMinor} >= 0`),
     check('products_currency_iso_4217', sql`${table.currency} ~ '^[A-Z]{3}$'`),
     index('products_created_at_id_idx').on(table.createdAt, table.id),
+    index('products_brand_id_idx').on(table.brandId),
+    index('products_category_id_idx').on(table.categoryId),
   ],
 );
 
